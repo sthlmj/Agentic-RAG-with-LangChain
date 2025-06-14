@@ -49,7 +49,8 @@ pip install -r requirements.txt
 
 Execute the following SQL query in Supabase:
 
-```-- Enable the pgvector extension to work with embedding vectors
+```
+-- Enable the pgvector extension to work with embedding vectors
 create extension if not exists vector;
 
 -- Create a table to store your documents
@@ -83,7 +84,6 @@ begin
   order by docs.embedding <=> query_embedding;
 end;
 $$;
-
 ```
 
 <h3>7. Add API keys to .env file</h3>
