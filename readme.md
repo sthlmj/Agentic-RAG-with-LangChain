@@ -59,12 +59,12 @@ create table
     id uuid primary key,
     content text, -- corresponds to Document.pageContent
     metadata jsonb, -- corresponds to Document.metadata
-    embedding vector (1536) -- 1536 works for OpenAI embeddings, change if needed
+    embedding vector (384) -- 384 works for OpenAI text-embedding-3-small embeddings
   );
 
 -- Create a function to search for documents
-create function match_documents (
-  query_embedding vector (1536),
+create or replace function match_documents (
+  query_embedding vector (384),
   filter jsonb default '{}'
 ) returns table (
   id uuid,
@@ -72,17 +72,16 @@ create function match_documents (
   metadata jsonb,
   similarity float
 ) language plpgsql as $$
-#variable_conflict use_column
 begin
   return query
   select
-    id,
-    content,
-    metadata,
-    1 - (documents.embedding <=> query_embedding) as similarity
-  from documents
-  where metadata @> filter
-  order by documents.embedding <=> query_embedding;
+    docs.id,
+    docs.content,
+    docs.metadata,
+    1 - (docs.embedding <=> query_embedding) as similarity
+  from documents as docs
+  where docs.metadata @> filter
+  order by docs.embedding <=> query_embedding;
 end;
 $$;
 ```
